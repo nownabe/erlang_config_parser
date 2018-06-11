@@ -18,17 +18,18 @@ def parse(str)
   @tokens = []
 
   until ss.eos?
-    ss.scan(/"(.+)"/)       ? @tokens << [:STRING,      ss[1]] :
-    ss.scan(/\d+\.\d+/)     ? @tokens << [:FLOAT,       ss.matched] :
-    ss.scan(/\d+/)          ? @tokens << [:INTEGER,     ss.matched] :
-    ss.scan(/\[/)           ? @tokens << [:LIST_BEGIN,  ss.matched] :
-    ss.scan(/\]/)           ? @tokens << [:LIST_END,    ss.matched] :
-    ss.scan(/{/)            ? @tokens << [:TUPLE_BEGIN, ss.matched] :
-    ss.scan(/}/)            ? @tokens << [:TUPLE_END,   ss.matched] :
-    ss.scan(/'([-\w_@]+)'/) ? @tokens << [:ATOM,        ss[1]] :
-    ss.scan(/[a-z][\w_@]+/) ? @tokens << [:ATOM,        ss.matched] :
-    ss.scan(/,/)            ? @tokens << [:COMMA,       ss.matched] :
-    ss.scan(/\s/)           ? nil :
+    ss.scan(/"((?:[^"\\]|\\.)*)"/)        ? @tokens << [:STRING,      ss[1]] :
+    ss.scan(/[+-]?\d+\.\d+(?:e[+-]\d+)?/) ? @tokens << [:FLOAT,       ss.matched] :
+    ss.scan(/[+-]?\d+/)                   ? @tokens << [:INTEGER,     ss.matched] :
+    ss.scan(/\[/)                         ? @tokens << [:LIST_BEGIN,  ss.matched] :
+    ss.scan(/\]/)                         ? @tokens << [:LIST_END,    ss.matched] :
+    ss.scan(/{/)                          ? @tokens << [:TUPLE_BEGIN, ss.matched] :
+    ss.scan(/}/)                          ? @tokens << [:TUPLE_END,   ss.matched] :
+    ss.scan(/'((?:[^'\\]|\\.)*)'/)        ? @tokens << [:ATOM,        ss[1]] :
+    ss.scan(/[a-z][\w_@]*/)               ? @tokens << [:ATOM,        ss.matched] :
+    ss.scan(/,/)                          ? @tokens << [:COMMA,       ss.matched] :
+    ss.scan(/\s/)                         ? nil :
+    ss.scan(/\./)                         ? break :
     (raise "scanner error")
   end
 
@@ -42,18 +43,18 @@ end
 ##### State transition tables begin ###
 
 racc_action_table = [
-     4,    19,     5,     6,    20,    12,    13,    14,    15,     4,
-    18,     5,    17,   nil,    12,    13,    14,    15,     4,     8,
-     5,    21,    20,    12,    13,    14,    15,     4,   nil,     5 ]
+     4,    19,     5,    18,    20,    12,    13,    14,    15,     4,
+     8,     5,    21,    20,    12,    13,    14,    15,     4,     6,
+     5,    17,   nil,    12,    13,    14,    15,     4,   nil,     5 ]
 
 racc_action_check = [
-    20,     7,    20,     1,     7,    20,    20,    20,    20,     5,
-     6,     5,     5,   nil,     5,     5,     5,     5,     4,     4,
-     4,    16,    16,     4,     4,     4,     4,     0,   nil,     0 ]
+    20,     7,    20,     6,     7,    20,    20,    20,    20,     4,
+     4,     4,    16,    16,     4,     4,     4,     4,     5,     1,
+     5,     5,   nil,     5,     5,     5,     5,     0,   nil,     0 ]
 
 racc_action_pointer = [
-    25,     3,   nil,   nil,    16,     7,    10,    -2,   nil,   nil,
-   nil,   nil,   nil,   nil,   nil,   nil,    16,   nil,   nil,   nil,
+    25,    19,   nil,   nil,     7,    16,     3,    -2,   nil,   nil,
+   nil,   nil,   nil,   nil,   nil,   nil,     7,   nil,   nil,   nil,
     -2,   nil,   nil ]
 
 racc_action_default = [
@@ -62,13 +63,13 @@ racc_action_default = [
    -15,    -5,    -8 ]
 
 racc_goto_table = [
-     7,    16,     3,     2,     1,    22 ]
+     7,    16,     3,     2,    22,     1 ]
 
 racc_goto_check = [
-     4,     4,     3,     2,     1,     5 ]
+     4,     4,     3,     2,     5,     1 ]
 
 racc_goto_pointer = [
-   nil,     4,     3,     2,    -4,   -15 ]
+   nil,     5,     3,     2,    -4,   -16 ]
 
 racc_goto_default = [
    nil,   nil,    10,    11,   nil,     9 ]
